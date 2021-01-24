@@ -20,20 +20,21 @@ Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'honza/vim-snippets'
 Plug 'Chiel92/vim-autoformat'
 Plug 'nathanaelkane/vim-indent-guides'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-"Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-" => LINTER
-Plug 'w0rp/ale'
+Plug 'neovim/nvim-lspconfig'
+Plug 'nvim-lua/completion-nvim'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 call plug#end()
 
-let mapleader = "."
-set tabstop=8 softtabstop=8 shiftwidth=8 expandtab autoindent nu nowrap noerrorbells
+let mapleader = "\<Space>"
+set tabstop=8 softtabstop=8 shiftwidth=8 expandtab autoindent nu nowrap noerrorbells incsearch
+set nobackup noswapfile
+syntax enable
 set foldmethod=indent foldlevel=0 foldnestmax=1
 highlight Folded ctermbg=NONE
 if has('termguicolors')
       set termguicolors
 endif
-set bg=light termguicolors
+set bg=light 
 colorscheme forest-night
 let g:forest_night_cursor = 'green'
 let g:forest_night_diagnostic_line_highlight = 1
@@ -62,4 +63,87 @@ let g:webdevicons_enable_airline_statusline = 1
 
 let g:NERDCreateDefaultMappings = 1
 let g:NERDSpaceDelims = 1
+
+hi LspDiagnosticsVirtualTextError guifg=Red ctermfg=Red
+set cot=menuone,noinsert,noselect
+let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
+let g:completion_confirm_key = "<C-a>"
+:lua << EOF
+        local nvim_lsp = require('lspconfig')
+        local on_attach = function(client, bufnr)
+        local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+        local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+        require('completion').on_attach()
+
+        buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+        -- Mappings.
+        local opts = { noremap=true, silent=true }
+        buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+        buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+        buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+        buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+        buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+        buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+        buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+        buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+        buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+        buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+        buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+        buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+        buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+        buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+        buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+
+        -- Set some keybinds conditional on server capabilities
+        if client.resolved_capabilities.document_formatting then
+                buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+        elseif client.resolved_capabilities.document_range_formatting then
+                buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+        end
+
+        -- Set autocommands conditional on server_capabilities
+        if client.resolved_capabilities.document_highlight then
+                vim.api.nvim_exec([[
+                        hi LspReferenceRead cterm=bold ctermbg=red guibg=LightYellow
+                        hi LspReferenceText cterm=bold ctermbg=red guibg=LightYellow
+                        hi LspReferenceWrite cterm=bold ctermbg=red guibg=LightYellow
+                augroup lsp_document_highlight
+                        autocmd!
+                        autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
+                        autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+                augroup END
+                ]], false)
+                end
+        end
+
+        -- Use a loop to conveniently both setup defined servers 
+        -- and map buffer local keybindings when the language server attaches
+        local servers = { "ccls" }
+        for _, lsp in ipairs(servers) do
+                nvim_lsp[lsp].setup { on_attach = on_attach }
+        end
+EOF
+:lua << EOF
+        vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+                vim.lsp.diagnostic.on_publish_diagnostics, {
+                -- This will disable virtual text, like doing:
+                -- let g:diagnostic_enable_virtual_text = 0
+                virtual_text = {
+                        spacing = 4,
+                        prefix = '',
+                },
+
+                -- This is similar to:
+                -- let g:diagnostic_show_sign = 1
+                -- To configure sign display,
+                --  see: ":help vim.lsp.diagnostic.set_signs()"
+                signs = true,
+
+                -- This is similar to:
+                -- "let g:diagnostic_insert_delay = 1"
+                update_in_insert = true,
+        }
+)
+EOF
 " THE END "
