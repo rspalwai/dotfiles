@@ -1,0 +1,43 @@
+font:
+  normal:
+    family: Fira Code iCursive S12
+    style: Regular
+
+  italic:
+    family: Fira Code iCursive S12
+    style: Italic
+
+  size: 12
+# Colors (Forest-Night)
+colors:
+  # Default colors
+  primary:
+      background: '#323d43'
+      foreground: '#d8caac'
+
+  # Cursor colors
+  cursor:
+    text:   '#fdf6e3' # base3
+    cursor: '#657b83' # base00
+
+  # Normal colors
+  normal:
+      black:   '#505a60'
+      red:     '#e68183'
+      green:   '#a7c080'
+      yellow:  '#d9bb80'
+      blue:    '#83b6af'
+      magenta: '#d39bb6'
+      cyan:    '#87c095'
+      white:   '#d8caac'
+
+  # Bright colors
+  bright:
+      black:   '#505a60'
+      red:     '#e68183'
+      green:   '#a7c080'
+      yellow:  '#d9bb80'
+      blue:    '#83b6af'
+      magenta: '#d39bb6'
+      cyan:    '#87c095'
+      white:   '#d8caac'
