@@ -26,7 +26,7 @@ Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 call plug#end()
 
 let mapleader = "\<Space>"
-set tabstop=8 softtabstop=8 shiftwidth=8 expandtab autoindent nu nowrap noerrorbells incsearch
+set tabstop=8 softtabstop=8 shiftwidth=8 expandtab autoindent nu nowrap noerrorbells incsearch nohlsearch
 set nobackup noswapfile
 syntax enable
 set foldmethod=indent foldlevel=0 foldnestmax=1
@@ -39,7 +39,6 @@ colorscheme forest-night
 let g:forest_night_cursor = 'green'
 let g:forest_night_diagnostic_line_highlight = 1
 
-
 let g:gitgutter_enabled=1 
 
 let g:airline_powerline_fonts = 1
@@ -49,8 +48,8 @@ let g:indent_guides_enable_on_vim_startup = 1
 hi IndentGuidesOdd  ctermbg=black
 hi IndentGuidesEven ctermbg=darkgrey
 
-let g:ale_linters = {'c': ['gcc']}
-let g:ale_cpp_gcc_options = '-Wall -O2'
+"let g:ale_linters = {'c': ['gcc']}
+"let g:ale_cpp_gcc_options = '-Wall -O2'
 
 autocmd StdinReadPre * let s:std_in=1
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
@@ -130,7 +129,7 @@ EOF
                 -- This will disable virtual text, like doing:
                 -- let g:diagnostic_enable_virtual_text = 0
                 virtual_text = {
-                        spacing = 4,
+                        spacing = 8,
                         prefix = '',
                 },
 
